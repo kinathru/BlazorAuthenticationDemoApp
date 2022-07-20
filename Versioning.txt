@@ -1,0 +1,9 @@
+Date: 07/02/22
+Version: 0.6
+Features
+	- Updated styled UI for Login/Logout
+	- Error messages, when the user creation failes due to errors returned from the server side
+	- Using username instead of email for logging in
+	- User CRUD UI and Services
+	- Roles CRUI UI and Services
+	- Account Information Page with Account Update

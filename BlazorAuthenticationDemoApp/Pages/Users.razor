@@ -1,0 +1,83 @@
+﻿@page "/users"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Users</h3>
+
+@if (UsersList == null || UsersList.Count == 0)
+{
+    <h4>Loading....</h4>
+}
+else
+{
+    <div class="container">
+        <table class="table table-borderless">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Lockout Enabled</th>
+                    <th>Access Failed Count</th>
+                    <th>Roles</th>
+                    <th>Claims</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var user in UsersList)
+                {
+                    <tr>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.LockoutEnabled</td>
+                        <td>@user.AccessFailedCount</td>
+                        <td>@user.GetUserRolesString()</td>
+                        <td>@user.GetUserClaimsString()</td>
+                        <td>
+                            <button type="button" @onclick="(()=>ViewUser(user.UserId))" class="btn btn-primary btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button type="button" @onclick="(()=>EditUser(user.UserId))" class="btn btn-primary btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <button type="button" @onclick="CreateUser" class="btn btn-primary btn-sm">
+            <i class="bi bi-person-plus"></i> Create User
+        </button>
+    </div>
+}
+
+@code {
+
+    List<UserDetail> UsersList { get; set; } = new List<UserDetail>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        UsersList = await UserService.GetAllUsers();
+        await base.OnInitializedAsync();
+    }
+
+    public void ViewUser(string userId)
+    {
+        NavigationManager.NavigateTo($"user/{userId}");
+    }
+
+    public void EditUser(string userId)
+    {
+        NavigationManager.NavigateTo($"user/{userId}");
+    }
+
+    public void CreateUser()
+    {
+        NavigationManager.NavigateTo("user/");
+    }
+
+}

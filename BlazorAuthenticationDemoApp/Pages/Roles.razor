@@ -1,0 +1,101 @@
+﻿@page "/roles"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Roles</h3>
+
+@if (UserRoles == null || UserRoles.Count() == 0)
+{
+    <h4>Loading User Roles....</h4>
+}
+else{
+    <EditForm Model="UserRoles" OnSubmit="HandleSubmit">
+        <div class="container">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var role in UserRoles)
+                    {
+                        <tr>
+                            <td>
+                                <InputText type="text" class="form-control form-control-sm" style="@(string.IsNullOrEmpty(role.RoleId) ? "color:#0d6efd" : "")" @bind-Value="role.RoleName"/>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" @onclick="(()=>DeleteRole(role))">
+                                    <i class="bi bi-trash"></i> Delete Role
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="container">
+            <button type="button" class="btn btn-success btn-sm" @onclick="AddRole">
+                <i class="bi bi-people"></i> Add New Role
+            </button>
+            <button type="button" class="btn btn-warning btn-sm" @onclick="SaveRoleChanges">
+                <i class="bi bi-person-rolodex"></i> Save Roles
+            </button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    HashSet<RoleDetail> UserRoles { get; set; } = new HashSet<RoleDetail>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserRoles = await UserService.GetAllUserRoles();
+        await base.OnInitializedAsync();
+    }
+
+    public async void DeleteRole(RoleDetail role)
+    {
+        if (string.IsNullOrEmpty(role.RoleId))
+        {
+            UserRoles.Remove(role);
+        }
+        else
+        {
+            bool deleteSuccess = await UserService.DeleteRole(role.RoleId);
+            if (deleteSuccess)
+            {
+                UserRoles.Remove(role);
+            }
+            StateHasChanged();
+        }
+    }
+
+    public void AddRole()
+    {
+        UserRoles.Add(new RoleDetail());
+    }
+
+    public async void SaveRoleChanges()
+    {
+        foreach (var role in UserRoles)
+        {
+            if (string.IsNullOrEmpty(role.RoleId))
+            {
+                await UserService.CreateRole(role);
+            }
+            else
+            {
+                await UserService.UpdateRole(role);
+            }
+        }
+        UserRoles = await UserService.GetAllUserRoles();
+        StateHasChanged();
+    }
+
+    public void HandleSubmit()
+    {
+        
+    }
+}

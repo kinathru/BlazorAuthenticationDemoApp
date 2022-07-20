@@ -1,0 +1,75 @@
+﻿@page "/"
+@using BlazorAuthenticationDemoApp.Data
+
+@inject NavigationManager NavigationManager
+@inject WeatherForecastService ForecastService
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hello, @context.User.Identity.Name! </p>
+        <a class="btn btn-primary btn-sm" href="Identity/Account/Logout">Log Out</a>
+    </Authorized>
+    <NotAuthorized>
+        <p>Hello, Guest!</p>
+        <a class="btn btn-primary btn-sm" href="Identity/Account/Login">Log in</a>
+        <a class="btn btn-primary btn-sm" href="Identity/Account/Register">Register</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hello, @context.User.Identity.Name! This is your personalized forecast</p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in PersonalizedForecast)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Authorized>
+    <NotAuthorized>
+        <p>Unable to provide a personalized forecast since you are not logged in!</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask  { get; set; }
+
+    private List<WeatherForecast> PersonalizedForecast { get; set; } = new List<WeatherForecast>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authSate = await AuthenticationStateTask;
+        var user = authSate.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var forecast = await ForecastService.GetForecastAsync();
+            PersonalizedForecast.Add(forecast[0]);
+        }
+    }
+}

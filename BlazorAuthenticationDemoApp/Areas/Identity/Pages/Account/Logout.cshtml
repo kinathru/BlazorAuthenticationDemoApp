@@ -1,0 +1,18 @@
+﻿@page
+@using Microsoft.AspNetCore.Identity
+@attribute [IgnoreAntiforgeryToken]
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@functions{
+    public async Task<IActionResult> OnGet()
+    {
+        if (SignInManager.IsSignedIn(User))
+        {
+            await SignInManager.SignOutAsync(); // Removes the cookie from the browser
+            var identity = await UserManager.FindByNameAsync(User.Identity.Name);
+            await UserManager.UpdateSecurityStampAsync(identity);
+        }
+
+        return Redirect("~/");
+    }
+}

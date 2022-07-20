@@ -1,0 +1,79 @@
+﻿@page
+@model BlazorAuthenticationDemoApp.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<!--<h1>@ViewData["Title"]</h1>
+<div class="row" style="margin:50px">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2>Use a local account to log in</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating" style="margin:10px;">
+                    <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" />
+                    <label asp-for="Input.UserName" class="form-label"></label>
+                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                </div>
+                <div class="form-floating" style="margin:10px;">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div style="margin:10px">
+                    <button id="login-submit" type="submit" class="btn btn-primary">Log in</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>-->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="card border-0 shadow rounded-3 my-5">
+                <div class="card-body p-4 p-sm-5">
+                    <h5 class="card-title text-center mb-5 fw-light fs-5">Sign In</h5>
+                    <form id="account" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.UserName" type="text" class="form-control" autocomplete="username" aria-required="true" id="floatingInput" placeholder="name@example.com">
+                            <label asp-for="Input.UserName" for="floatingInput">Username</label>
+                            <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" type="password" id="floatingPassword" placeholder="Password">
+                            <label asp-for="Input.Password" for="floatingPassword">Password</label>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        @*<div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" value="" id="rememberPasswordCheck">
+                            <label class="form-check-label" for="rememberPasswordCheck">
+                                Remember password
+                            </label>
+                        </div>*@
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-login text-uppercase fw-bold" id="login-submit" type="submit">
+                                Sign
+                                in
+                            </button>
+                        </div>
+                        <hr class="my-4">
+                        <!--<div class="d-grid mb-2">
+                            <button class="btn btn-google btn-login text-uppercase fw-bold" type="submit">
+                                <i class="fab fa-google me-2"></i> Sign in with Google
+                            </button>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-facebook btn-login text-uppercase fw-bold" type="submit">
+                                <i class="fab fa-facebook-f me-2"></i> Sign in with Facebook
+                            </button>
+                        </div>-->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

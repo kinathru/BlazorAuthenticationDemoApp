@@ -1,0 +1,196 @@
+﻿@page "/accountinfo"
+@inject IUserService UserService
+@inject NavigationManager NavigationManager
+
+<div class="container" style="text-align:center;">
+    <h3>User Account Information</h3>
+</div>
+
+@if (CurrentUser == null)
+{
+    <h4>Loading...</h4>
+}
+else
+{
+    <EditForm Model="CurrentUser" OnSubmit="HandleSubmit">
+        <div class="container">
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="inputusername" class="form-label">Username</label>
+                        </td>
+                        <td>
+                            <InputText id="inputusername" class="form-control form-control-sm" @bind-Value="CurrentUser.UserName" disabled/>
+                        </td>
+                        <td>
+                            <label for="inputemail" class="form-label">Email</label>
+                        </td>
+                        <td>
+                            <InputText id="inputemail" class="form-control form-control-sm" @bind-Value="CurrentUser.Email"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="inputphonenumber" class="form-label">Phone Number</label>
+                        </td>
+                        <td>
+                            <InputText id="inputphonenumber" class="form-control form-control-sm" @bind-Value="CurrentUser.PhoneNumber"/>
+                        </td>
+                        <td>
+                            @*<label for="inputemail" class="form-label">Email</label>*@
+                        </td>
+                        <td>
+                            @*<InputText id="inputemail" class="form-control form-control-sm" @bind-Value="CurrentUser.Email" disabled/>*@
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="locoutenabledin">Lockout Enabled</label>
+                        </td>
+                        <td>
+                            <InputCheckbox class="form-check form-check-input" id="locoutenabledin" @bind-Value="CurrentUser.LockoutEnabled" disabled/>
+                        </td>
+                        <td>
+                            <label for="accessfailin">Access Failed Count</label>
+                        </td>
+                        <td>
+                            <InputNumber class="form-control form-control-sm" id="accessfailin" @bind-Value="CurrentUser.AccessFailedCount" disabled/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Assinged Roles</label>
+                        </td>
+                        <td colspan="3">
+                            <div class="btn-group btn-group-sm">
+                                @foreach(var role in CurrentUser.AssignedUserRoles)
+                                {
+                                    <a class="btn btn-warning">
+                                        @role<text>&nbsp;</text>
+                                        @*<span class="btn-close"></span>*@
+                                    </a><text>&nbsp;</text>
+                                }
+                            </div>                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="form-label" for="inputpwdhash">@(ChangePassword ? "Change Password" : "Password")</label>
+                        </td>
+                        <td colspan="3">                            
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        @if (!ChangePassword)
+                                        {
+                                            <td width="99%">
+                                                <InputText type="password" id="inputpwdhash" class="form-control form-control-sm" @bind-Value="CurrentUser.PasswordHash" disabled/>
+                                            </td>
+                                            <td width="1%">
+                                                <button type="button" @onclick="TogglePasswordChange" class="btn btn-info btn-sm">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td width="49%">
+                                                <InputText type="password" id="inputpwdhash" class="form-control form-control-sm" @bind-Value="CurrentUser.OldPassword" placeholder="Old Password"/>
+                                            </td>
+                                            <td width="49%">
+                                                <InputText type="password" id="inputpwdhash" class="form-control form-control-sm" @bind-Value="CurrentUser.NewPassword" placeholder="New Password"/>
+                                            </td>
+                                            <td width="1%">
+                                                <button type="button" @onclick="TogglePasswordChange" class="btn btn-info btn-sm">
+                                                    <i class="bi bi-box-arrow-up-left"></i>
+                                                </button>
+                                            </td>
+                                            <td width="1%" >
+                                                <button type="button" @onclick="UpdatePassword" class="btn @(ChangePasswordSuccess ? "btn-warning" : "btn-danger") btn-sm">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" style="text-align:center;">
+                                            <br/>
+                                            <button type="submit" @onclick="UpdateAccountInfo" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-person-check"></i> Update Account Information
+                                            </button>
+                                            <button type="submit" @onclick="CancelUpdate" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-trash3"></i> Cancel
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </EditForm>
+}
+
+@code {
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask  { get; set; }
+
+    public UserDetail CurrentUser { get; set; }
+
+    public bool ChangePassword { get; set; } = false;
+    public bool ChangePasswordSuccess { get; set; } = true;
+
+    public void TogglePasswordChange()
+    {
+        ChangePassword = !ChangePassword;
+    }
+
+    public async void UpdatePassword()
+    {
+        bool passwordChangeSuccess = await UserService.UpdatePassword(CurrentUser.UserId, CurrentUser);
+        if (passwordChangeSuccess)
+        {
+            CurrentUser = await UserService.GetUser(CurrentUser.UserId);
+            ChangePasswordSuccess = true;
+            TogglePasswordChange();
+        }
+        else
+        {
+            CurrentUser.OldPassword = null;
+            CurrentUser.NewPassword = null;
+            ChangePasswordSuccess = false;
+        }
+        StateHasChanged();
+    }
+
+    public void CancelUpdate()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async void UpdateAccountInfo()
+    {
+        await UserService.UpdateUser(CurrentUser.UserId, CurrentUser);
+        NavigationManager.NavigateTo("/");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authSate = await AuthenticationStateTask;
+        var user = authSate.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            CurrentUser = await UserService.GetUserByName(user.Identity.Name);
+        }
+    }
+
+    public void HandleSubmit()
+    {
+        
+    }
+}
